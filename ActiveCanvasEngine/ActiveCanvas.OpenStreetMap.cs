@@ -280,7 +280,11 @@ namespace ActiveCanvasEngine
         /// User-Agent (requests without one get blocked) - set it to your own application's name/version
         /// and a contact URL, e.g. "MyApp/2.1 (+https://example.com/myapp)".
         /// </summary>
-        public string OsmUserAgent { get; set; } = "ActiveCanvas/1.0.1 (+https://github.com/duroLAB/SimpleInteractiveEngine)";
+        public string OsmUserAgent { get; set; } = DefaultOsmUserAgent;
+
+        // "ActiveCanvas/1.0.0 (+...)" - the version comes from the DLL itself, so it never needs updating by hand.
+        private static readonly string DefaultOsmUserAgent =
+            $"ActiveCanvas/{typeof(ActiveCanvas).Assembly.GetName().Version?.ToString(3) ?? "1.0"} (+https://github.com/duroLAB/SimpleInteractiveEngine)";
 
         /// <summary>Attribution text drawn in the bottom-left corner while the layer is shown - required by
         /// the OSM license. Change it together with OsmTileUrlTemplate if you use a different tile source.</summary>

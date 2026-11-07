@@ -4,7 +4,7 @@
 draw and interactively edit elements on a canvas: from simple technical sketches, through GIS/map
 backgrounds, to interactive diagrams and graphs with connected nodes.
 
-**Current version: 1.0.1** — see the [Changelog](#changelog).
+**Current version: 1.0.0** — see the [Changelog](#changelog).
 
 It's not a CAD or GIS library — it's a small, readable engine (a single `ActiveCanvas` class, split across
 several files by responsibility via `partial class`) that handles the stuff you end up needing again and
@@ -320,24 +320,16 @@ engine.ShapeDoubleClicked += (s, shape) =>
 
 ## Changelog
 
-### Unreleased
+### 1.0.0 — first public release
 
-- **Renamed (breaking):** namespace `SimpleDrawingEngine` → `ActiveCanvasEngine`, library project/DLL
-  `SimpleInteractiveEngine.Core` → `ActiveCanvasEngine` (`ActiveCanvasEngine.dll`), solution
-  `ActiveCanvasEngine.sln`. The class is still `ActiveCanvas` - just change `using SimpleDrawingEngine;`
-  to `using ActiveCanvasEngine;` and re-add the project/DLL reference.
+Everything listed under [What it can do](#what-it-can-do). Compared with the preview versions published
+earlier on GitHub (as SimpleInteractiveEngine):
 
-- Background images for the front (X-Z) and side (Y-Z) plane in addition to the plan view
-  (`SetFrontBackgroundImage()`, `SetSideBackgroundImage()`), per-plane visibility and opacity
-  (`SetBackgroundVisible()`, `SetBackgroundOpacity()`), `ClearBackgroundImage(plane)`,
-  `ClearAllBackgroundImages()`, `LoadImageFile()`
-- `BackgroundImageOpener.ShowAsync()` can open a front/side image too
-- `Remove()` / `RemoveSelected()` and the `ItemRemoved` event; TestApp: Delete key removes the selected item
-- `ActiveCanvas` is `IDisposable` (`Dispose()`, `IsDisposed`): detaches from the `PictureBox` and the
-  application-wide wheel filter, frees bitmaps and cancels tile downloads; still runs automatically when the
-  `PictureBox` is disposed
-
-### 1.0.1
+**Renamed (breaking)**
+- Namespace `SimpleDrawingEngine` → `ActiveCanvasEngine`, library project/DLL `SimpleInteractiveEngine.Core`
+  → `ActiveCanvasEngine` (`ActiveCanvasEngine.dll`), solution `ActiveCanvasEngine.sln`. The class is still
+  `ActiveCanvas` — change `using SimpleDrawingEngine;` to `using ActiveCanvasEngine;` and re-add the
+  project/DLL reference.
 
 **OpenStreetMap / map backgrounds**
 - Optional OSM (or any XYZ) tile layer: `EnableOpenStreetMap()` / `DisableOpenStreetMap()`, background
@@ -346,7 +338,7 @@ engine.ShapeDoubleClicked += (s, shape) =>
 - GPS helpers: `LatLonToWebMercator()`, `WebMercatorToLatLon()`, `SetLocalOriginLatLon()`,
   `LatLonToLocal()`, `LocalToLatLon()`, `CreatePointLatLon()`, `ScreenToLatLon()`, `ZoomToLatLon()`
 - `SetGeoAnchor()` — a drawing in its own coordinates placed on the map
-- While the map is shown the view is locked north-up (`OsmLockNorthUp`, `IsNorthUpLocked`) and the
+- While the map is shown the view is locked north-up (`OsmLockNorthUp`, `IsNorthUpLocked`) and the plan-view
   background image is hidden (`OsmHidesBackgroundImage`)
 - Scale bar and measuring tool show real ground distances on a Web Mercator map
 - Zoom limits are public (`MinPixelsPerMeter`, `MaxPixelsPerMeter`); with the map on you can zoom out to
@@ -356,13 +348,26 @@ engine.ShapeDoubleClicked += (s, shape) =>
 - North arrow in 2D views (`NorthArrow`: `Always` / `WhenRotated` / `Never`)
 - `WorldUpBearingDegrees`, `ToTrueNorth()` / `FromTrueNorth()`, East/North in the property grid
 
-**Other**
-- Dark/light theme (`ApplyDarkTheme()`, `ApplyLightTheme()`, `AppTheme`) and `HatchBrushes`
+**Background images**
+- Front (X-Z) and side (Y-Z) plane images in addition to the plan view (`SetFrontBackgroundImage()`,
+  `SetSideBackgroundImage()`), per-plane visibility and opacity (`SetBackgroundVisible()`,
+  `SetBackgroundOpacity()`), `ClearBackgroundImage(plane)`, `ClearAllBackgroundImages()`, `LoadImageFile()`
+- `BackgroundImageOpener.ShowAsync()` can open a front/side image too
 - Fix: the background image keeps its position when `SetLocalOrigin()` is called after loading it
 
-### 1.0.0
+**API and lifetime**
+- `Remove()` / `RemoveSelected()` and the `ItemRemoved` event — an item is removed together with what depends
+  on it
+- `ActiveCanvas` is `IDisposable` (`Dispose()`, `IsDisposed`): detaches from the `PictureBox` and the
+  application-wide wheel filter, frees bitmaps and cancels tile downloads; still runs automatically when the
+  `PictureBox` is disposed
+- XML documentation file (`ActiveCanvasEngine.xml`) is generated next to the DLL, so IntelliSense shows the
+  documentation to DLL users too
 
-- First public release
+**Other**
+- Dark/light theme (`ApplyDarkTheme()`, `ApplyLightTheme()`, `AppTheme`) and `HatchBrushes`
+- TestApp cleaned up: English UI, a demo scene with every primitive (geometry and diagram side by side),
+  engine events in the status bar, Delete key removes the selected item, named toolbar buttons
 
 ## License
 

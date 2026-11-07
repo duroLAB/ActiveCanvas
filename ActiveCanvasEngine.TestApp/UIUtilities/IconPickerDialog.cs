@@ -9,14 +9,13 @@ using System.Windows.Forms;
 namespace IconPicker
 {
     /// <summary>
-    /// Jednoduchý dialóg na výber obrázka/ikony (PNG, BMP, ICO a pod.) z preddefinovaného
-    /// adresára - ikony sa zobrazia ako malé náhľady v mriežke (predvolene 10 na riadok, 32x32 px).
-    /// Používateľ môže adresár aj zmeniť, alebo namiesto výberu z adresára zvoliť ľubovoľný
-    /// vlastný súbor cez štandardný OpenFileDialog.
+    /// A simple dialog for picking an image/icon (PNG, BMP, ICO, ...) from a predefined folder - the icons
+    /// are shown as small thumbnails in a grid (10 per row, 32x32 px by default). The user can also change
+    /// the folder, or pick any other file through a standard OpenFileDialog instead.
     ///
-    /// Príklad použitia:
+    /// Example:
     ///
-    ///     using (var dlg = new IconPickerDialog(@"C:\MojaApp\Resources\Icons"))
+    ///     using (var dlg = new IconPickerDialog(@"C:\MyApp\Resources\Icons"))
     ///     {
     ///         dlg.ThumbnailSize = 32;
     ///         dlg.IconsPerRow = 10;
@@ -24,22 +23,21 @@ namespace IconPicker
     ///
     ///         if (dlg.ShowDialog(this) == DialogResult.OK)
     ///         {
-    ///             string vybranaCesta = dlg.SelectedFilePath;
-    ///             pictureBoxNahlad.Image = Image.FromFile(vybranaCesta);
+    ///             string selectedPath = dlg.SelectedFilePath;
+    ///             pictureBoxPreview.Image = Image.FromFile(selectedPath);
     ///         }
     ///     }
     ///
-    /// POZNÁMKA k [Browsable(false)]/[DesignerSerializationVisibility(Hidden)] nižšie: tento dialóg sa
-    /// vytvára výhradne v kóde (new IconPickerDialog(...)) a nikdy by nemal skončiť ako komponenta
-    /// položená na plátne iného Formu vo VS Designeri. Keďže ale dedí z Form, Designer by sa - ak by sa
-    /// tam predsa len ocitol (napr. omylom pretiahnutý, alebo pri reloade projektu) - pokúsil
-    /// automaticky vygenerovať serializačný kód pre všetky jeho verejné vlastnosti do
-    /// InitializeComponent(). Explicitné skrytie týchto vlastností pred Designerom tomu predchádza.
+    /// NOTE on [Browsable(false)]/[DesignerSerializationVisibility(Hidden)] below: this dialog is only ever
+    /// created in code (new IconPickerDialog(...)) and should never end up as a component dropped onto
+    /// another Form in the VS Designer. Since it derives from Form, though, the Designer would - if it ever
+    /// got there (dragged by mistake, or on a project reload) - try to generate serialization code for all
+    /// its public properties into InitializeComponent(). Hiding those properties from the Designer prevents that.
     ///
-    /// [DesignerCategory("")] na triede navyše rieši aj prípad, keď sa žiadne chyby netýkajú priamo
-    /// pretiahnutia na plátno - VS na pozadí skenuje všetky verejné triedy dediace z Form/Control/Component
-    /// pre Toolbox/IntelliSense, nezávisle od toho, či ich niekto reálne použije v Designeri. Prázdna
-    /// kategória hovorí tomuto skenovaniu "túto triedu vôbec neanalyzuj ako dizajnovateľnú".
+    /// [DesignerCategory("")] on the class also covers the case that has nothing to do with dropping it
+    /// onto a form - VS scans every public class derived from Form/Control/Component in the background for
+    /// the Toolbox/IntelliSense, whether or not anyone uses it in the Designer. The empty category tells
+    /// that scan "don't analyze this class as designable at all".
     /// </summary>
     [DesignerCategory("")]
     public class IconPickerDialog : Form
@@ -54,7 +52,7 @@ namespace IconPicker
 
         private IconThumbnailControl _selectedThumb;
 
-        /// <summary>Adresár, z ktorého sa načítavajú náhľady ikon/obrázkov.</summary>
+        /// <summary>Folder the icon/image thumbnails are loaded from.</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string IconsDirectory
@@ -63,24 +61,24 @@ namespace IconPicker
             set => _txtDirectory.Text = value ?? string.Empty;
         }
 
-        /// <summary>Povolené prípony súborov (s bodkou), napr. ".png", ".bmp", ".ico".</summary>
+        /// <summary>Allowed file extensions (with the dot), e.g. ".png", ".bmp", ".ico".</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string[] AllowedExtensions { get; set; } = new string[] { ".png", ".bmp", ".ico" };
 
-        /// <summary>Veľkosť náhľadu ikony v pixeloch (štvorec). Predvolené 32.</summary>
+        /// <summary>Thumbnail size in pixels (square). Default 32.</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int ThumbnailSize { get; set; } = 32;
 
-        /// <summary>Počet ikon na riadok pri predvolenej šírke okna (ovplyvňuje len počiatočnú šírku - pri zmene veľkosti okna sa mriežka prirodzene prelamuje).</summary>
+        /// <summary>Icons per row at the default window width (affects only the initial width - when the window is resized, the grid simply wraps).</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int IconsPerRow { get; set; } = 10;
 
         /// <summary>
-        /// Cesta k súboru, ktorý používateľ vybral - buď dvojklikom / OK v zozname ikon,
-        /// alebo cez tlačidlo "Vlastný súbor...". Platné len ak ShowDialog() vráti DialogResult.OK.
+        /// Path of the file the user picked - by double-click / OK in the icon list, or via the
+        /// "Other file..." button. Valid only if ShowDialog() returned DialogResult.OK.
         /// </summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -92,7 +90,7 @@ namespace IconPicker
 
         public IconPickerDialog(string initialDirectory)
         {
-            Text = "Výber ikony";
+            Text = "Choose an icon";
             StartPosition = FormStartPosition.CenterParent;
             MinimizeBox = false;
             MaximizeBox = true;
@@ -100,7 +98,7 @@ namespace IconPicker
             FormBorderStyle = FormBorderStyle.Sizable;
             Font = SystemFonts.MessageBoxFont;
 
-            // --- horný panel: adresár + tlačidlo na jeho zmenu ---
+            // --- top panel: folder + button to change it ---
             var pnlTop = new TableLayoutPanel
             {
                 Dock = DockStyle.Top,
@@ -119,7 +117,7 @@ namespace IconPicker
             pnlTop.Controls.Add(_txtDirectory, 0, 0);
             pnlTop.Controls.Add(_btnBrowseDir, 1, 0);
 
-            // --- spodný panel: vlastný súbor / stav / OK / Zrušiť ---
+            // --- bottom panel: other file / status / OK / Cancel ---
             var pnlBottom = new TableLayoutPanel
             {
                 Dock = DockStyle.Bottom,
@@ -133,7 +131,7 @@ namespace IconPicker
             pnlBottom.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 84f));
             pnlBottom.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 84f));
 
-            _btnCustomFile = new Button { Text = "Vlastný súbor...", AutoSize = true, Dock = DockStyle.Fill };
+            _btnCustomFile = new Button { Text = "Other file...", AutoSize = true, Dock = DockStyle.Fill };
             _btnCustomFile.Click += BtnCustomFile_Click;
 
             _lblStatus = new Label
@@ -148,14 +146,14 @@ namespace IconPicker
             _btnOK = new Button { Text = "OK", Dock = DockStyle.Fill, DialogResult = DialogResult.OK, Enabled = false };
             _btnOK.Click += (s, e) => ConfirmSelection(_selectedThumb);
 
-            _btnCancel = new Button { Text = "Zrušiť", Dock = DockStyle.Fill, DialogResult = DialogResult.Cancel };
+            _btnCancel = new Button { Text = "Cancel", Dock = DockStyle.Fill, DialogResult = DialogResult.Cancel };
 
             pnlBottom.Controls.Add(_btnCustomFile, 0, 0);
             pnlBottom.Controls.Add(_lblStatus, 1, 0);
             pnlBottom.Controls.Add(_btnOK, 2, 0);
             pnlBottom.Controls.Add(_btnCancel, 3, 0);
 
-            // --- stredná časť: mriežka náhľadov ikon ---
+            // --- middle: grid of icon thumbnails ---
             _flpIcons = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -167,7 +165,7 @@ namespace IconPicker
                 BorderStyle = BorderStyle.Fixed3D
             };
 
-            // Poradie pridávania je dôležité: Fill najprv, potom Top/Bottom (viď dokovanie vo WinForms).
+            // The order matters: Fill first, then Top/Bottom (see docking in WinForms).
             Controls.Add(_flpIcons);
             Controls.Add(pnlBottom);
             Controls.Add(pnlTop);
@@ -175,9 +173,9 @@ namespace IconPicker
             AcceptButton = _btnOK;
             CancelButton = _btnCancel;
 
-            // Šírka okna nastavená tak, aby sa pri predvolenej veľkosti zmestilo IconsPerRow ikon v jednom riadku.
-            int itemOuterSize = ThumbnailSize + 10 /* vnútorný padding položky */ + 6 /* margin medzi položkami */;
-            int desiredWidth = itemOuterSize * IconsPerRow + 40 /* okraje + posuvník */;
+            // Window width chosen so that IconsPerRow icons fit into one row at the default size.
+            int itemOuterSize = ThumbnailSize + 10 /* item padding */ + 6 /* margin between items */;
+            int desiredWidth = itemOuterSize * IconsPerRow + 40 /* borders + scrollbar */;
             ClientSize = new Size(Math.Max(360, desiredWidth), 420);
             MinimumSize = new Size(320, 260);
 
@@ -211,7 +209,7 @@ namespace IconPicker
         {
             using (var ofd = new OpenFileDialog
             {
-                Title = "Vyberte súbor s obrázkom",
+                Title = "Choose an image file",
                 Filter = BuildFileFilter(),
                 CheckFileExists = true
             })
@@ -231,10 +229,10 @@ namespace IconPicker
         private string BuildFileFilter()
         {
             string extsPattern = string.Join(";", AllowedExtensions.Select(x => "*" + x));
-            return $"Obrázky ({extsPattern})|{extsPattern}|Všetky súbory (*.*)|*.*";
+            return $"Images ({extsPattern})|{extsPattern}|All files (*.*)|*.*";
         }
 
-        /// <summary>Znovu načíta náhľady zo súčasne nastaveného adresára (IconsDirectory).</summary>
+        /// <summary>Reloads the thumbnails from the current folder (IconsDirectory).</summary>
         public void LoadIcons()
         {
             ClearThumbnails();
@@ -242,7 +240,7 @@ namespace IconPicker
             string dir = IconsDirectory;
             if (string.IsNullOrWhiteSpace(dir) || !Directory.Exists(dir))
             {
-                _lblStatus.Text = "Adresár neexistuje.";
+                _lblStatus.Text = "The folder doesn't exist.";
                 return;
             }
 
@@ -256,7 +254,7 @@ namespace IconPicker
             }
             catch (Exception ex)
             {
-                _lblStatus.Text = "Chyba pri čítaní adresára: " + ex.Message;
+                _lblStatus.Text = "Error reading the folder: " + ex.Message;
                 return;
             }
 
@@ -284,8 +282,8 @@ namespace IconPicker
             _flpIcons.ResumeLayout();
 
             _lblStatus.Text = failed > 0
-                ? $"Načítaných {loaded} položiek ({failed} sa nepodarilo načítať)."
-                : $"Načítaných {loaded} položiek.";
+                ? $"Loaded {loaded} items ({failed} could not be loaded)."
+                : $"Loaded {loaded} items.";
 
             _selectedThumb = null;
             _btnOK.Enabled = false;

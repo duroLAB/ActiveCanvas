@@ -6,14 +6,14 @@ using System.IO;
 namespace IconPicker
 {
     /// <summary>
-    /// Pomocná trieda na načítanie zmenšeného (štvorcového) náhľadu obrázka alebo ikony zo súboru.
-    /// Podporuje PNG, BMP, ICO, JPG a GIF (formáty, ktoré vie prečítať GDI+ cez System.Drawing).
+    /// Helper that loads a downscaled (square) thumbnail of an image or icon file.
+    /// Supports PNG, BMP, ICO, JPG and GIF (the formats GDI+ can read via System.Drawing).
     /// </summary>
     internal static class IconThumbnailLoader
     {
         /// <summary>
-        /// Načíta súbor a vráti nový bitmapový náhľad veľkosti size x size.
-        /// V prípade chyby (poškodený súbor, nepodporovaný formát...) vráti null.
+        /// Loads the file and returns a new size x size bitmap thumbnail.
+        /// Returns null on error (corrupt file, unsupported format, ...).
         /// </summary>
         public static Image LoadThumbnail(string filePath, int size)
         {
@@ -21,8 +21,8 @@ namespace IconPicker
             {
                 if (string.Equals(Path.GetExtension(filePath), ".ico", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Pre .ico požiadame rovno o variantu s požadovanou veľkosťou (ak v súbore existuje),
-                    // inak Windows vyberie najbližšiu a nižšie ju doškálujeme.
+                    // For .ico, ask directly for the variant of the requested size (if the file has one);
+                    // otherwise Windows picks the closest one and it's scaled below.
                     using (var icon = new Icon(filePath, new Size(size, size)))
                     using (var iconBitmap = icon.ToBitmap())
                     {
@@ -37,7 +37,7 @@ namespace IconPicker
             }
             catch
             {
-                // Poškodený / nepodporovaný súbor jednoducho preskočíme.
+                // A corrupt / unsupported file is simply skipped.
                 return null;
             }
         }
@@ -56,7 +56,7 @@ namespace IconPicker
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 g.Clear(Color.Transparent);
 
-                // Zachováme pomer strán a náhľad vycentrujeme, aby sa nedeformoval.
+                // Keep the aspect ratio and center the thumbnail so it isn't distorted.
                 float scale = Math.Min((float)size / source.Width, (float)size / source.Height);
                 int drawWidth = Math.Max(1, (int)Math.Round(source.Width * scale));
                 int drawHeight = Math.Max(1, (int)Math.Round(source.Height * scale));

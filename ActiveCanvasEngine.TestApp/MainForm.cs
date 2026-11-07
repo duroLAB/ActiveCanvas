@@ -1,20 +1,21 @@
-using ActiveCanvasEngine;
 using System.Globalization;
-using System.Numerics;
-using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace ActiveCanvasEngine.TestApp
 {
+    /// <summary>
+    /// Test / demo application for the ActiveCanvas engine - every toolbar button exercises one feature.
+    /// Keys: Esc = cancel drawing, Enter = finish drawing, Delete = remove the selected item.
+    /// </summary>
     public partial class MainForm : Form
     {
-        ActiveCanvas engine;
+        private ActiveCanvas engine;
         private bool _isDark;
 
-        // OSM demo - Bratislava, Hlavne namestie
-        private const double DemoLatitude = 48.1437;
-        private const double DemoLongitude = 17.1078;
+        // OSM demo location - the drawing origin (0,0) is anchored here when the map is turned on
+        private const double DemoLatitude = 48.172969;   // Duslo, Sala
+        private const double DemoLongitude = 17.940856;
         private bool _geoDemoAdded;
+
         public MainForm()
         {
             InitializeComponent();
@@ -25,16 +26,9 @@ namespace ActiveCanvasEngine.TestApp
         {
             DemoScene.Build(engine);
 
-
-            /*   // odteraz zadávaš VŠETKO v surových S-JTSK súradniciach - engine si sám odpočíta offset
-               engine.SetBackgroundImageFromGeoTiff(@"D:\TestGisData\slovnaftOrto\BRATISLAVA_7-2_BL.tif");
-               engine.AddPoint(-569500f, -1283200f, 0f, "Bod A"); // reálna S-JTSK súradnica, žiadne prepočítavanie naspamäť
-
-               engine.ZoomToFullExtent();*/
-
             toolStripButton3D2Dview.Image = imageList1.Images[1];
 
-            // Status bar: GPS position under the cursor while the OSM layer is on.
+            // Status bar, right: GPS position under the cursor while the OSM layer is on.
             pictureBox1.MouseMove += (s, e) =>
             {
                 var geo = engine.IsOpenStreetMapEnabled ? engine.ScreenToLatLon(e.Location) : null;
@@ -42,137 +36,167 @@ namespace ActiveCanvasEngine.TestApp
                     "Lat {0:F6}   Lon {1:F6}   |   OSM zoom {2}", geo.Value.Latitude, geo.Value.Longitude, engine.OsmCurrentZoom);
             };
 
-            this.KeyPreview = true;
-            this.KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) engine.CancelDrawing(); };
-            this.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) engine.FinishDrawing(); };
-            this.KeyDown += (s, e) => { if (e.KeyCode == Keys.Delete && !engine.IsDrawing) engine.RemoveSelected(); };
-
-
-            engine.PointDoubleClicked += (s, p) =>
+            KeyPreview = true;
+            KeyDown += (s, e) =>
             {
-                var grid = engine.CreatePropertyGrid(p, hiddenProperties: new[] { "Id", "HoverEnabled", "Draggable" });
-                // zostane len: X, Y, Z, Label, ShowLabel, Shape, Size, Color, Selectable
-
-                using var dlg = new Form { Text = "Point properties", Width = 320, Height = 380 };
-                dlg.Controls.Add(grid);
-                dlg.ShowDialog(this);
+                switch (e.KeyCode)
+                {
+                    case Keys.Escape: engine.CancelDrawing(); break;
+                    case Keys.Enter: engine.FinishDrawing(); break;
+                    case Keys.Delete when !engine.IsDrawing: engine.RemoveSelected(); break;
+                }
             };
-            ///
 
-
+            // Property dialogs on double-click. For points, a few rows are hidden to show hiddenProperties.
+            engine.PointDoubleClicked += (s, p) =>
+                ShowPropertyDialog(p, hiddenProperties: new[] { "Id", "HoverEnabled", "Draggable" });
             engine.PolylineDoubleClicked += (s, pl) => ShowPropertyDialog(pl);
             engine.PolygonDoubleClicked += (s, pg) => ShowPropertyDialog(pg);
             engine.ImageDoubleClicked += (s, im) => ShowPropertyDialog(im);
+            engine.ShapeDoubleClicked += (s, sh) => ShowPropertyDialog(sh);
+            engine.ConnectorDoubleClicked += (s, c) => ShowPropertyDialog(c);
 
-
-            engine.PointPlaced += (s, p) => { MessageBox.Show("Point placed! x:"+ p.World.X);};
-            engine.PolygonDrawingFinished += (s, pg) => { MessageBox.Show("Polygon finished!"); };
-
-
-            engine.CustomBackgroundPaint += (s, e) =>
-            {
-                var visible = engine.GetVisibleWorldBounds(); // orezanie – kresli len to, čo je vidno
-
-                using var wallPen = new Pen(Color.Black, 1.5f);
-
-                //  if (!visible.IntersectsWith(line.Bounds)) continue; // preskoč, čo je mimo obrazovky
-
-                var p1 = engine.Project(new Vector3(5, 20, 0));
-                var p2 = engine.Project(new Vector3(5, 30, 0));
-                e.Graphics.DrawLine(wallPen, p1, p2);
-
-            };
+            // Status bar, left: what just happened - a quick way to see the engine's events at work.
+            engine.PointPlaced += (s, p) => ShowStatus(string.Format(CultureInfo.InvariantCulture,
+                "Point placed at X = {0:F2}, Y = {1:F2}", engine.ToRaw(p.World).X, engine.ToRaw(p.World).Y));
+            engine.PolylineDrawingFinished += (s, pl) => ShowStatus($"Polyline finished ({pl.Vertices.Count} vertices)");
+            engine.PolygonDrawingFinished += (s, pg) => ShowStatus($"Polygon finished ({pg.Vertices.Count} vertices)");
+            engine.MeasurementCompleted += (s, meters) => ShowStatus(string.Format(CultureInfo.InvariantCulture,
+                "Distance: {0:F2} m", meters));
+            engine.ItemRemoved += (s, item) => ShowStatus($"Removed: {item.GetType().Name}");
         }
 
+        private void ShowStatus(string message) => toolStripStatusLabelInfo.Text = message;
 
-        private void ShowPropertyDialog(object item)
+        private void ShowPropertyDialog(object item, string[]? hiddenProperties = null)
         {
-            var grid = engine.CreatePropertyGrid(item);
-            if (grid == null) return; // neznámy typ
+            var grid = engine.CreatePropertyGrid(item, hiddenProperties);
+            if (grid == null) return; // unknown item type
 
-
-
-            using var dlg = new Form { Text = "Properties", Width = 320, Height = 420, StartPosition = FormStartPosition.CenterParent };
-            dlg.Controls.Add(grid); // grid má Dock = Fill, netreba nič ďalšie
+            using var dlg = new Form
+            {
+                Text = "Properties",
+                Width = 320,
+                Height = 420,
+                StartPosition = FormStartPosition.CenterParent
+            };
+            dlg.Controls.Add(grid); // the grid is Dock = Fill
             dlg.ShowDialog(this);
         }
 
+        // ---- Drawing / placing ----
+
         private void toolStripButtonAddPoint_Click(object sender, EventArgs e)
         {
-            engine.StartPlacingPoints(label: "New Point", brush: new SolidBrush(Color.Crimson), shape: ActiveCanvas.PointShape.Diamond, size: 8f, continuous: false);
+            engine.StartPlacingPoints(label: "New point", brush: new SolidBrush(Color.Crimson),
+                shape: ActiveCanvas.PointShape.Diamond, size: 8f, continuous: false);
         }
 
         private void toolStripButtonAddPolyLine_Click(object sender, EventArgs e)
         {
-            engine.StartDrawingPolyline("Nová trasa", new Pen(Color.ForestGreen, 3f));
-
+            engine.StartDrawingPolyline("New route", new Pen(Color.ForestGreen, 3f));
+            ShowStatus("Click to add vertices, double-click or Enter to finish, Esc to cancel");
         }
 
         private void toolStripButtonAddPolygon_Click(object sender, EventArgs e)
         {
-            engine.StartDrawingPolygon("Nový polygon", new SolidBrush(Color.FromArgb(128, Color.LightBlue)), new Pen(Color.DarkBlue, 2f));
+            engine.StartDrawingPolygon("New area", new SolidBrush(Color.FromArgb(128, Color.LightBlue)), new Pen(Color.DarkBlue, 2f));
+            ShowStatus("Click to add vertices, double-click or Enter to finish, Esc to cancel");
         }
+
+        private void toolStripButtonAddIcon_Click(object sender, EventArgs e)
+        {
+            string iconsPath = Path.Combine(AppContext.BaseDirectory, "testIcons");
+            using var dlg = new IconPicker.IconPickerDialog(iconsPath)
+            {
+                ThumbnailSize = 32,
+                IconsPerRow = 60, // affects only the initial window width
+                AllowedExtensions = new[] { ".png", ".bmp", ".ico" }
+            };
+
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            // LoadImageFile reads the file fully, so it isn't kept locked
+            var icon = ActiveCanvas.LoadImageFile(dlg.SelectedFilePath, maxPixelDimension: 256);
+            engine.StartPlacingImages(icon, label: Path.GetFileNameWithoutExtension(dlg.SelectedFilePath),
+                width: 32, continuous: false);
+        }
+
+        private void toolStripButtonLengthMeasure_Click(object sender, EventArgs e)
+        {
+            engine.StartMeasuring();
+            ShowStatus("Click two points to measure the distance");
+        }
+
+        private void toolStripButtonClearAll_Click(object sender, EventArgs e)
+        {
+            engine.CancelDrawing();
+            engine.Clear();
+            engine.ClearAllBackgroundImages();
+            _geoDemoAdded = false; // re-added the next time the map is turned on
+            ShowStatus("Everything cleared");
+        }
+
+        // ---- View ----
 
         private void toolStripButton3D2Dview_Click(object sender, EventArgs e)
         {
-            float pd = engine.PitchDegrees;
-            if (pd >= 89f && pd < 91)
+            bool isTopView = engine.PitchDegrees >= 89f && engine.PitchDegrees < 91f;
+            if (isTopView)
             {
                 toolStripButton3D2Dview.Image = imageList1.Images[0];
                 engine.ShowIsometricView();
                 engine.AllowFreeRotate = true;
-                engine.ZoomToFullExtent();
             }
             else
             {
                 toolStripButton3D2Dview.Image = imageList1.Images[1];
                 engine.ShowTopView();
                 engine.AllowFreeRotate = false;
-                engine.ZoomToFullExtent();
             }
-        }
-
-        private void toolStripButtonAddIcon_Click(object sender, EventArgs e)
-        {
-            string iconsPath = Path.Combine(AppContext.BaseDirectory, "testicons");
-            using (var dlg = new IconPicker.IconPickerDialog(iconsPath))
-            {
-                dlg.ThumbnailSize = 32;   // predvolené
-                dlg.IconsPerRow = 60;     // predvolené, ovplyvňuje počiatočnú šírku okna
-                dlg.AllowedExtensions = new[] { ".png", ".bmp", ".ico" };
-
-                if (dlg.ShowDialog(this) == DialogResult.OK)
-                {
-                    string cesta = dlg.SelectedFilePath;
-                    // pictureBox1.Image = Image.FromFile(cesta);
-                    Image icon = Image.FromFile(cesta);
-                    engine.StartPlacingImages(icon, label: "Kamera", width: 32, continuous: false);
-                }
-            }
+            engine.ZoomToFullExtent();
         }
 
         private void toolStripButtonFullZoom_Click(object sender, EventArgs e)
         {
-            engine.ZoomToFullExtent();           // 10% okraj (default)
-            engine.ZoomToFullExtent(0f);                                      //   engine.ZoomToFullExtent(0f);         // presne na okraj, bez rezervy
-
+            engine.ZoomToFullExtent(); // 10% margin; ZoomToFullExtent(0f) fits edge to edge
         }
+
+        private void toolStripButtonDarkMode_Click(object sender, EventArgs e)
+        {
+            _isDark = !_isDark;
+
+            if (_isDark)
+            {
+                AppTheme.ApplyDark(this);
+                engine.ApplyDarkTheme();
+                toolStripButtonDarkMode.Text = "Light mode";
+            }
+            else
+            {
+                AppTheme.ApplyLight(this);
+                engine.ApplyLightTheme();
+                toolStripButtonDarkMode.Text = "Dark mode";
+            }
+        }
+
+        // ---- Background images ----
 
         private readonly ContextMenuStrip _backgroundMenu = new ContextMenuStrip();
 
-        /// <summary>Background images: open one per plane (plan / front / side), show/hide, opacity.</summary>
+        /// <summary>Background images: open one per plane (plan / front / side), show/hide, opacity, remove.</summary>
         private void toolStripButtonOpenBackGroundImage_Click(object sender, EventArgs e)
         {
             _backgroundMenu.Items.Clear();
-            _backgroundMenu.Items.Add("Otvoriť pôdorys (X–Y)...", null, async (s, a) => await OpenBackgroundAsync(ActiveCanvas.BackgroundPlane.Ground));
-            _backgroundMenu.Items.Add("Otvoriť čelný pohľad (X–Z)...", null, async (s, a) => await OpenBackgroundAsync(ActiveCanvas.BackgroundPlane.Front));
-            _backgroundMenu.Items.Add("Otvoriť bočný pohľad (Y–Z)...", null, async (s, a) => await OpenBackgroundAsync(ActiveCanvas.BackgroundPlane.Side));
+            _backgroundMenu.Items.Add("Open plan view (X-Y)...", null, async (s, a) => await OpenBackgroundAsync(ActiveCanvas.BackgroundPlane.Ground));
+            _backgroundMenu.Items.Add("Open front view (X-Z)...", null, async (s, a) => await OpenBackgroundAsync(ActiveCanvas.BackgroundPlane.Front));
+            _backgroundMenu.Items.Add("Open side view (Y-Z)...", null, async (s, a) => await OpenBackgroundAsync(ActiveCanvas.BackgroundPlane.Side));
 
             var planes = new[]
             {
-                (Plane: ActiveCanvas.BackgroundPlane.Ground, Name: "pôdorys"),
-                (Plane: ActiveCanvas.BackgroundPlane.Front, Name: "čelný pohľad"),
-                (Plane: ActiveCanvas.BackgroundPlane.Side, Name: "bočný pohľad")
+                (Plane: ActiveCanvas.BackgroundPlane.Ground, Name: "plan view"),
+                (Plane: ActiveCanvas.BackgroundPlane.Front, Name: "front view"),
+                (Plane: ActiveCanvas.BackgroundPlane.Side, Name: "side view")
             };
 
             foreach (var (plane, name) in planes)
@@ -180,7 +204,7 @@ namespace ActiveCanvasEngine.TestApp
                 bool hasImage = engine.HasBackgroundImage(plane);
                 _backgroundMenu.Items.Add(new ToolStripSeparator());
 
-                var visible = new ToolStripMenuItem($"Zobraziť {name}")
+                var visible = new ToolStripMenuItem($"Show {name}")
                 {
                     Enabled = hasImage,
                     Checked = engine.IsBackgroundVisible(plane)
@@ -188,7 +212,7 @@ namespace ActiveCanvasEngine.TestApp
                 visible.Click += (s, a) => engine.SetBackgroundVisible(plane, !engine.IsBackgroundVisible(plane));
                 _backgroundMenu.Items.Add(visible);
 
-                var opacity = new ToolStripMenuItem($"Krytie – {name}") { Enabled = hasImage };
+                var opacity = new ToolStripMenuItem($"Opacity - {name}") { Enabled = hasImage };
                 foreach (int percent in new[] { 100, 75, 50, 25 })
                 {
                     var option = new ToolStripMenuItem($"{percent} %")
@@ -200,7 +224,7 @@ namespace ActiveCanvasEngine.TestApp
                 }
                 _backgroundMenu.Items.Add(opacity);
 
-                var remove = new ToolStripMenuItem($"Odstrániť {name}") { Enabled = hasImage };
+                var remove = new ToolStripMenuItem($"Remove {name}") { Enabled = hasImage };
                 remove.Click += (s, a) => engine.ClearBackgroundImage(plane);
                 _backgroundMenu.Items.Add(remove);
             }
@@ -230,23 +254,13 @@ namespace ActiveCanvasEngine.TestApp
             engine.ZoomToFullExtent();
         }
 
-        private void toolStripButtonClearAll_Click(object sender, EventArgs e)
-        {
-            
-             engine.Clear();
-             engine.SetLocalOrigin(0, 0);
-        }
-
-        private void toolStripButtonLengthMeasure_Click(object sender, EventArgs e)
-        {
-            engine.StartMeasuring();
-        }
+        // ---- OpenStreetMap and drawing orientation ----
 
         private void toolStripButtonOsm_Click(object sender, EventArgs e) => SetMapEnabled(toolStripButtonOsm.Checked);
 
         /// <summary>
         /// Everything in this test app is drawn in local "drawing" meters (like a CAD drawing). The geo
-        /// anchor places that drawing on the map: drawing 0,0 = Hlavne namestie, rotated by the bearing
+        /// anchor places that drawing on the map: drawing 0,0 = the demo location, rotated by the bearing
         /// set with the N° button. The world coordinates never change - the map is fitted under them.
         /// </summary>
         private void SetMapEnabled(bool enabled)
@@ -262,7 +276,7 @@ namespace ActiveCanvasEngine.TestApp
                     _geoDemoAdded = true;
                 }
 
-                engine.OsmUserAgent = "ActiveCanvas.TestApp/1.0.1 (+https://github.com/duroLAB/SimpleInteractiveEngine)";
+                engine.OsmUserAgent = $"ActiveCanvas.TestApp/{typeof(MainForm).Assembly.GetName().Version?.ToString(3)} (+https://github.com/duroLAB/SimpleInteractiveEngine)";
                 engine.EnableOpenStreetMap();   // switches to top view, north up (OsmLockNorthUp = true by default)
                 engine.ZoomToLatLon(DemoLatitude, DemoLongitude, zoomLevel: 16);
 
@@ -280,26 +294,27 @@ namespace ActiveCanvasEngine.TestApp
             }
         }
 
-        /// <summary>A few items placed by GPS coordinates, to check they sit on the right spot of the map.</summary>
+        /// <summary>An item placed by GPS coordinates, to check it sits on the right spot of the map.</summary>
         private void AddGeoDemo()
         {
             // Converted to drawing coordinates through the geo anchor (and the bearing valid right now) -
-            // they stay where they are in the drawing if the bearing is changed later.
-            var castle = engine.CreatePointLatLon(48.14216, 17.10004, label: "Bratislavsky hrad")
-                .WithBrush(new SolidBrush(Color.Crimson)).WithShape(ActiveCanvas.PointShape.Star).WithSize(10f);
-            var gate = engine.CreatePointLatLon(48.14513, 17.10668, label: "Michalska brana")
-                .WithBrush(new SolidBrush(Color.Crimson)).WithShape(ActiveCanvas.PointShape.Star).WithSize(10f);
-
-            engine.AddPolyline(new[] { castle, gate }, "Hrad - Michalska brana", new Pen(Color.Crimson, 2.5f));
+            // it stays where it is in the drawing if the bearing is changed later. CreatePointLatLon only
+            // creates the point, so it's added to Points explicitly.
+            var marker = engine.CreatePointLatLon(DemoLatitude, DemoLongitude, label: "Duslo")
+                .WithBrush(new SolidBrush(Color.Crimson))
+                .WithShape(ActiveCanvas.PointShape.Star)
+                .WithSize(10f);
+            engine.Points.Add(marker);
+            engine.Render();
         }
 
         /// <summary>Asks where the drawing's "up" really points (e.g. an AutoCAD background in local
-        /// coordinates) - the engine then shows a north arrow in the 2D view.</summary>
+        /// coordinates) - the engine then shows the north arrow accordingly and fits the map under the drawing.</summary>
         private void toolStripButtonNorth_Click(object sender, EventArgs e)
         {
             using var dlg = new Form
             {
-                Text = "Orientácia výkresu",
+                Text = "Drawing orientation",
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 StartPosition = FormStartPosition.CenterParent,
                 MinimizeBox = false,
@@ -309,7 +324,7 @@ namespace ActiveCanvasEngine.TestApp
 
             var label = new Label
             {
-                Text = "Kam reálne smeruje vrch výkresu (azimut v stupňoch):0 = sever, 90 = východ, 135 = juhovýchod, 270 = západ",
+                Text = "Where the drawing's \"up\" really points (bearing in degrees):\n0 = north, 90 = east, 135 = south-east, 270 = west",
                 Location = new Point(12, 12),
                 AutoSize = true
             };
@@ -323,7 +338,7 @@ namespace ActiveCanvasEngine.TestApp
                 Value = (decimal)(engine.WorldUpBearingDegrees % 360f)
             };
             var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, Location = new Point(174, 59), Size = new Size(75, 25) };
-            var cancel = new Button { Text = "Zrušiť", DialogResult = DialogResult.Cancel, Location = new Point(253, 59), Size = new Size(75, 25) };
+            var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel, Location = new Point(253, 59), Size = new Size(75, 25) };
 
             dlg.Controls.AddRange(new Control[] { label, input, ok, cancel });
             dlg.AcceptButton = ok;
@@ -331,24 +346,6 @@ namespace ActiveCanvasEngine.TestApp
 
             if (dlg.ShowDialog(this) == DialogResult.OK)
                 engine.WorldUpBearingDegrees = (float)input.Value;
-        }
-
-        private void toolStripButtonDarkMode_Click(object sender, EventArgs e)
-        {
-            _isDark = !_isDark;
-
-            if (_isDark)
-            {
-                AppTheme.ApplyDark(this);
-                engine.ApplyDarkTheme();
-                toolStripButtonDarkMode.Text = "☀ Svetlý režim";
-            }
-            else
-            {
-                AppTheme.ApplyLight(this);
-                engine.ApplyLightTheme();
-                toolStripButtonDarkMode.Text = "🌙 Tmavý režim";
-            }
         }
     }
 }

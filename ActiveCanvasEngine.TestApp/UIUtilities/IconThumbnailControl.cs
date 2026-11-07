@@ -6,8 +6,8 @@ using System.Windows.Forms;
 namespace IconPicker
 {
     /// <summary>
-    /// Jedna položka v zozname ikon: malý štvorcový náhľad obrázka, ktorý sa dá vizuálne
-    /// označiť ako vybraný (Selected) a reaguje na Click / DoubleClick.
+    /// One item in the icon list: a small square image thumbnail that can be visually marked as
+    /// selected (Selected) and reacts to Click / DoubleClick.
     /// </summary>
     [DesignerCategory("")]
     public class IconThumbnailControl : Panel
@@ -15,10 +15,10 @@ namespace IconPicker
         private readonly PictureBox _pictureBox;
         private bool _selected;
 
-        /// <summary>Celá cesta k súboru, ktorý táto položka reprezentuje.</summary>
+        /// <summary>Full path of the file this item represents.</summary>
         public string FilePath { get; }
 
-        /// <summary>Či je táto položka práve vizuálne označená ako vybraná.</summary>
+        /// <summary>Whether this item is currently marked as selected.</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Selected
@@ -55,8 +55,8 @@ namespace IconPicker
             tip.SetToolTip(_pictureBox, Path.GetFileName(filePath));
             tip.SetToolTip(this, Path.GetFileName(filePath));
 
-            // Preposlanie udalostí myši z vnútorného PictureBoxu na túto položku,
-            // aby klik/dvojklik fungoval kdekoľvek na dlaždici, nielen na okraji Panelu.
+            // Forward mouse events from the inner PictureBox to this item, so a click/double-click
+            // works anywhere on the tile, not just on the Panel's border.
             _pictureBox.Click += (s, e) => OnClick(e);
             _pictureBox.DoubleClick += (s, e) => OnDoubleClick(e);
         }

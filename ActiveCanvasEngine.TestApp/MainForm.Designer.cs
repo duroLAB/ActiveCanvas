@@ -49,6 +49,7 @@
             toolStripButtonDarkMode = new ToolStripButton();
             toolStripButtonOsm = new ToolStripButton();
             toolStripButtonNorth = new ToolStripButton();
+            toolStripStatusLabelInfo = new ToolStripStatusLabel();
             toolStripStatusLabelCoords = new ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             toolStrip1.SuspendLayout();
@@ -83,7 +84,7 @@
             toolStripButtonAddPoint.ImageTransparentColor = Color.Magenta;
             toolStripButtonAddPoint.Name = "toolStripButtonAddPoint";
             toolStripButtonAddPoint.Size = new Size(36, 36);
-            toolStripButtonAddPoint.Text = "Add Point";
+            toolStripButtonAddPoint.Text = "Place a point";
             toolStripButtonAddPoint.Click += toolStripButtonAddPoint_Click;
             // 
             // toolStripButtonAddPolyLine
@@ -94,7 +95,7 @@
             toolStripButtonAddPolyLine.ImageTransparentColor = Color.Magenta;
             toolStripButtonAddPolyLine.Name = "toolStripButtonAddPolyLine";
             toolStripButtonAddPolyLine.Size = new Size(36, 36);
-            toolStripButtonAddPolyLine.Text = "Add PolyLine";
+            toolStripButtonAddPolyLine.Text = "Draw a polyline";
             toolStripButtonAddPolyLine.Click += toolStripButtonAddPolyLine_Click;
             // 
             // toolStripButtonAddPolygon
@@ -105,7 +106,7 @@
             toolStripButtonAddPolygon.ImageTransparentColor = Color.Magenta;
             toolStripButtonAddPolygon.Name = "toolStripButtonAddPolygon";
             toolStripButtonAddPolygon.Size = new Size(36, 36);
-            toolStripButtonAddPolygon.Text = "Add polygon";
+            toolStripButtonAddPolygon.Text = "Draw a polygon";
             toolStripButtonAddPolygon.Click += toolStripButtonAddPolygon_Click;
             // 
             // toolStripButtonAddIcon
@@ -115,7 +116,7 @@
             toolStripButtonAddIcon.ImageTransparentColor = Color.Magenta;
             toolStripButtonAddIcon.Name = "toolStripButtonAddIcon";
             toolStripButtonAddIcon.Size = new Size(36, 36);
-            toolStripButtonAddIcon.Text = "toolStripButton1";
+            toolStripButtonAddIcon.Text = "Place an icon";
             toolStripButtonAddIcon.Click += toolStripButtonAddIcon_Click;
             // 
             // toolStripButtonOpenBackGroundImage
@@ -125,7 +126,7 @@
             toolStripButtonOpenBackGroundImage.ImageTransparentColor = Color.Magenta;
             toolStripButtonOpenBackGroundImage.Name = "toolStripButtonOpenBackGroundImage";
             toolStripButtonOpenBackGroundImage.Size = new Size(36, 36);
-            toolStripButtonOpenBackGroundImage.Text = "toolStripButton1";
+            toolStripButtonOpenBackGroundImage.Text = "Background images";
             toolStripButtonOpenBackGroundImage.Click += toolStripButtonOpenBackGroundImage_Click;
             // 
             // toolStripButtonClearAll
@@ -135,7 +136,7 @@
             toolStripButtonClearAll.ImageTransparentColor = Color.Magenta;
             toolStripButtonClearAll.Name = "toolStripButtonClearAll";
             toolStripButtonClearAll.Size = new Size(36, 36);
-            toolStripButtonClearAll.Text = "toolStripButton1";
+            toolStripButtonClearAll.Text = "Clear all";
             toolStripButtonClearAll.Click += toolStripButtonClearAll_Click;
             // 
             // toolStripSeparator1
@@ -150,7 +151,7 @@
             toolStripButtonLengthMeasure.ImageTransparentColor = Color.Magenta;
             toolStripButtonLengthMeasure.Name = "toolStripButtonLengthMeasure";
             toolStripButtonLengthMeasure.Size = new Size(36, 36);
-            toolStripButtonLengthMeasure.Text = "toolStripButton1";
+            toolStripButtonLengthMeasure.Text = "Measure a distance";
             toolStripButtonLengthMeasure.Click += toolStripButtonLengthMeasure_Click;
             // 
             // toolStripSeparator3
@@ -165,7 +166,7 @@
             toolStripButton3D2Dview.ImageTransparentColor = Color.Magenta;
             toolStripButton3D2Dview.Name = "toolStripButton3D2Dview";
             toolStripButton3D2Dview.Size = new Size(36, 36);
-            toolStripButton3D2Dview.Text = "toolStripButton2";
+            toolStripButton3D2Dview.Text = "Switch 2D / 3D view";
             toolStripButton3D2Dview.Click += toolStripButton3D2Dview_Click;
             // 
             // toolStripSeparator2
@@ -180,7 +181,7 @@
             toolStripButtonFullZoom.ImageTransparentColor = Color.Magenta;
             toolStripButtonFullZoom.Name = "toolStripButtonFullZoom";
             toolStripButtonFullZoom.Size = new Size(36, 36);
-            toolStripButtonFullZoom.Text = "toolStripButton1";
+            toolStripButtonFullZoom.Text = "Zoom to fit everything";
             toolStripButtonFullZoom.Click += toolStripButtonFullZoom_Click;
             // 
             // imageList1
@@ -193,7 +194,7 @@
             // 
             // statusStrip1
             // 
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelCoords });
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelInfo, toolStripStatusLabelCoords });
             statusStrip1.Location = new Point(0, 428);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new Size(800, 22);
@@ -207,7 +208,7 @@
             toolStripButtonDarkMode.ImageTransparentColor = Color.Magenta;
             toolStripButtonDarkMode.Name = "toolStripButtonDarkMode";
             toolStripButtonDarkMode.Size = new Size(36, 36);
-            toolStripButtonDarkMode.Text = "toolStripButton1";
+            toolStripButtonDarkMode.Text = "Dark mode";
             toolStripButtonDarkMode.Click += toolStripButtonDarkMode_Click;
             // 
             // toolStripButtonOsm
@@ -217,7 +218,7 @@
             toolStripButtonOsm.Name = "toolStripButtonOsm";
             toolStripButtonOsm.Size = new Size(36, 36);
             toolStripButtonOsm.Text = "OSM";
-            toolStripButtonOsm.ToolTipText = "OpenStreetMap podklad (zap/vyp)";
+            toolStripButtonOsm.ToolTipText = "OpenStreetMap background (on/off)";
             toolStripButtonOsm.Click += toolStripButtonOsm_Click;
             // 
             // toolStripButtonNorth
@@ -226,8 +227,14 @@
             toolStripButtonNorth.Name = "toolStripButtonNorth";
             toolStripButtonNorth.Size = new Size(36, 36);
             toolStripButtonNorth.Text = "N°";
-            toolStripButtonNorth.ToolTipText = "Orientácia výkresu voči severu";
+            toolStripButtonNorth.ToolTipText = "Drawing orientation (bearing of the drawing's up)";
             toolStripButtonNorth.Click += toolStripButtonNorth_Click;
+            // 
+            // toolStripStatusLabelInfo
+            // 
+            toolStripStatusLabelInfo.Name = "toolStripStatusLabelInfo";
+            toolStripStatusLabelInfo.Spring = true;
+            toolStripStatusLabelInfo.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // toolStripStatusLabelCoords
             // 
@@ -243,7 +250,7 @@
             Controls.Add(statusStrip1);
             Controls.Add(toolStrip1);
             Name = "MainForm";
-            Text = "Form1";
+            Text = "ActiveCanvas Test App";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             toolStrip1.ResumeLayout(false);
@@ -275,6 +282,7 @@
         private ToolStripButton toolStripButtonDarkMode;
         private ToolStripButton toolStripButtonOsm;
         private ToolStripButton toolStripButtonNorth;
+        private ToolStripStatusLabel toolStripStatusLabelInfo;
         private ToolStripStatusLabel toolStripStatusLabelCoords;
     }
 }
