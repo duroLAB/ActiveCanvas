@@ -49,6 +49,15 @@ namespace ActiveCanvasEngine
         /// <summary>Projects a world-space point to a screen position according to the current rotation/zoom/pan.</summary>
         public PointF Project(Vector3 world) => Project(world, out _);
 
+        /// <summary>
+        /// The point on the ground plane (raw Z = 0) under a screen position, in RAW coordinates - e.g. for
+        /// a "coordinates under the cursor" status bar. Works in the top view and in tilted 3D views; returns
+        /// null when the view looks along the ground (front/side view).
+        /// </summary>
+        /// <param name="screen">Position on the canvas in pixels (e.g. MouseEventArgs.Location).</param>
+        public Vector3? ScreenToGround(PointF screen)
+            => TryScreenToGround(screen, out var local) ? ToRaw(local) : null;
+
         private PointF Project(Vector3 world, out float depth)
         {
             var rotated = RotateToView(world);

@@ -64,6 +64,7 @@ hit-testing — done properly once, instead of rebuilt from scratch for every ne
   properties dialog
 - A consistent GUID `Id` on every item, for linking with the host application's own data
 - `FindById()`, events for selection/clicks/moves — no need to touch the `PictureBox` directly
+- `ScreenToGround()` — raw coordinates on the ground under the cursor, e.g. for a status bar
 - `Remove()` / `RemoveSelected()` — deletes an item together with what depends on it (a point leaves its
   lines/areas, a shape takes its connectors along), with an `ItemRemoved` event
 - Dark/light theme for the canvas (`ApplyDarkTheme()` / `ApplyLightTheme()`) and for the whole host form
@@ -266,6 +267,13 @@ engine.PolygonDrawingFinished += (s, polygon) => Console.WriteLine("Done");
 
 engine.StartMeasuring();
 engine.MeasurementCompleted += (s, meters) => statusLabel.Text = $"{meters:F2} m";
+
+// raw coordinates (e.g. S-JTSK) on the ground plane Z = 0 under the cursor - null in a front/side view
+pictureBox1.MouseMove += (s, e) =>
+{
+    var ground = engine.ScreenToGround(e.Location);
+    coordsLabel.Text = ground == null ? "" : $"X {ground.Value.X:F2}  Y {ground.Value.Y:F2}";
+};
 ```
 
 ### Removing items
@@ -294,6 +302,25 @@ engine.ShapeDoubleClicked += (s, shape) =>
 
 ---
 
+## Test app
+
+`ActiveCanvasEngine.TestApp` is a small demo for trying the library's features by hand:
+
+- **Top bar** — clear the scene, background images per plane (open, show/hide, opacity, remove), the
+  OpenStreetMap layer, the drawing orientation (`WorldUpBearingDegrees`), 2D/3D and standard views,
+  zoom to fit, light/dark theme
+- **Bar above the canvas** — tools: select, place points, draw a polyline or polygon, place icons,
+  measure, delete the selected item (Esc cancels a tool, Enter finishes drawing)
+- **Right panel** — `PROPERTIES` of the selected item (`CreatePropertyGrid()`, editable) and an
+  `EVENT LOG` with every event the engine raises
+- **Status bar** — last action, raw X/Y under the cursor (`ScreenToGround()`), GPS position while the map
+  is on (`ScreenToLatLon()`), zoom and the current view
+
+The toolbar icons are Google [Material Symbols](https://fonts.google.com/icons) (Outlined), drawn from a font
+embedded in the test app (`Fonts/MaterialSymbolsOutlined.ttf`, Apache License 2.0, see
+`Fonts/MaterialSymbols-LICENSE.txt`) — sharp at any DPI and recoloured for the dark theme. Only the test
+app uses them; the library itself has no dependencies.
+
 ## Architecture (for orientation in the files)
 
 | File | Responsibility |
@@ -303,7 +330,7 @@ engine.ShapeDoubleClicked += (s, shape) =>
 | `ActiveCanvas.PublicApi.cs` | `Add...()` methods, `Clear()`, `FindById()`, drawing/placing API |
 | `ActiveCanvas.Dispose.cs` | `IDisposable` - detaching from the `PictureBox`, freeing bitmaps |
 | `ActiveCanvas.Remove.cs` | `Remove()`, `RemoveSelected()`, `ItemRemoved` - removing items with their dependents |
-| `ActiveCanvas.Camera.cs` | View presets, coordinate projection, hit-testing, selection |
+| `ActiveCanvas.Camera.cs` | View presets, coordinate projection (`Project()`, `ScreenToGround()`), hit-testing, selection |
 | `ActiveCanvas.Input.cs` | Mouse handling, wheel zoom via `IMessageFilter` |
 | `ActiveCanvas.Rendering.cs` | All drawing |
 | `ActiveCanvas.PropertyGrid.cs` | `PropertyGrid` integration |
@@ -363,11 +390,13 @@ earlier on GitHub (as SimpleInteractiveEngine):
   `PictureBox` is disposed
 - XML documentation file (`ActiveCanvasEngine.xml`) is generated next to the DLL, so IntelliSense shows the
   documentation to DLL users too
+- `ScreenToGround()` — raw coordinates on the ground plane under a screen position
 
 **Other**
 - Dark/light theme (`ApplyDarkTheme()`, `ApplyLightTheme()`, `AppTheme`) and `HatchBrushes`
-- TestApp cleaned up: English UI, a demo scene with every primitive (geometry and diagram side by side),
-  engine events in the status bar, Delete key removes the selected item, named toolbar buttons
+- TestApp redesigned: flat UI with Material Symbols icons and a dark theme, a tool bar above the canvas,
+  a properties panel for the selected item, a log of all engine events, coordinates/zoom/view in the
+  status bar, and a demo scene with every primitive (geometry and diagram side by side)
 
 ## License
 

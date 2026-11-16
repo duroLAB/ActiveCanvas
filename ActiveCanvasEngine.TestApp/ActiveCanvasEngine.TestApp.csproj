@@ -32,6 +32,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Google Material Symbols Outlined (static instance), Apache License 2.0 - toolbar icons, see UIUtilities\GlyphIcons.cs -->
+    <EmbeddedResource Include="Fonts\MaterialSymbolsOutlined.ttf" />
+    <None Update="Fonts\MaterialSymbols-LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="testIcons\add_circle_32dp_2854C5_FILL0_wght400_GRAD0_opsz40.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
