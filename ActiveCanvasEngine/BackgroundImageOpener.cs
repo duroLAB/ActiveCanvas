@@ -97,9 +97,9 @@ namespace ActiveCanvasEngine
                 }
 
                 if (plane == ActiveCanvas.BackgroundPlane.Front)
-                    engine.SetFrontBackgroundImage(image, placement.Horizontal, placement.Bottom, placement.WidthMeters, atY: placement.PlaneOffset);
+                    engine.SetFrontBackgroundImage(image, placement.Horizontal, placement.BottomZ, placement.WidthMeters, atY: placement.PlaneOffset);
                 else
-                    engine.SetSideBackgroundImage(image, placement.Horizontal, placement.Bottom, placement.WidthMeters, atX: placement.PlaneOffset);
+                    engine.SetSideBackgroundImage(image, placement.Horizontal, placement.BottomZ, placement.WidthMeters, atX: placement.PlaneOffset);
             }
             catch (Exception ex)
             {
@@ -114,7 +114,7 @@ namespace ActiveCanvasEngine
             private readonly NumericUpDown _horizontal, _bottom, _width, _offset;
 
             public float Horizontal => (float)_horizontal.Value;
-            public float Bottom => (float)_bottom.Value;
+            public float BottomZ => (float)_bottom.Value;
             public float WidthMeters => (float)_width.Value;
             public float PlaneOffset => (float)_offset.Value;
 

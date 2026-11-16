@@ -50,7 +50,7 @@ namespace IconPicker
         private readonly Button _btnOK;
         private readonly Button _btnCancel;
 
-        private IconThumbnailControl _selectedThumb;
+        private IconThumbnailControl? _selectedThumb;
 
         /// <summary>Folder the icon/image thumbnails are loaded from.</summary>
         [Browsable(false)]
@@ -82,13 +82,13 @@ namespace IconPicker
         /// </summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string SelectedFilePath { get; private set; }
+        public string SelectedFilePath { get; private set; } = string.Empty;
 
         public IconPickerDialog() : this(null)
         {
         }
 
-        public IconPickerDialog(string initialDirectory)
+        public IconPickerDialog(string? initialDirectory)
         {
             Text = "Choose an icon";
             StartPosition = FormStartPosition.CenterParent;
@@ -185,12 +185,12 @@ namespace IconPicker
                 IconsDirectory = initialDirectory;
         }
 
-        private void IconPickerDialog_Load(object sender, EventArgs e)
+        private void IconPickerDialog_Load(object? sender, EventArgs e)
         {
             LoadIcons();
         }
 
-        private void BtnBrowseDir_Click(object sender, EventArgs e)
+        private void BtnBrowseDir_Click(object? sender, EventArgs e)
         {
             using (var fbd = new FolderBrowserDialog())
             {
@@ -205,7 +205,7 @@ namespace IconPicker
             }
         }
 
-        private void BtnCustomFile_Click(object sender, EventArgs e)
+        private void BtnCustomFile_Click(object? sender, EventArgs e)
         {
             using (var ofd = new OpenFileDialog
             {
@@ -265,7 +265,7 @@ namespace IconPicker
 
             foreach (var file in files)
             {
-                Image thumb = IconThumbnailLoader.LoadThumbnail(file, ThumbnailSize);
+                Image? thumb = IconThumbnailLoader.LoadThumbnail(file, ThumbnailSize);
                 if (thumb == null)
                 {
                     failed++;
@@ -296,14 +296,14 @@ namespace IconPicker
             _flpIcons.Controls.Clear();
         }
 
-        private void Thumbnail_Click(object sender, EventArgs e)
+        private void Thumbnail_Click(object? sender, EventArgs e)
         {
-            SelectThumbnail((IconThumbnailControl)sender);
+            SelectThumbnail((IconThumbnailControl)sender!);
         }
 
-        private void Thumbnail_DoubleClick(object sender, EventArgs e)
+        private void Thumbnail_DoubleClick(object? sender, EventArgs e)
         {
-            var thumb = (IconThumbnailControl)sender;
+            var thumb = (IconThumbnailControl)sender!;
             SelectThumbnail(thumb);
             ConfirmSelection(thumb);
         }
@@ -318,7 +318,7 @@ namespace IconPicker
             _btnOK.Enabled = true;
         }
 
-        private void ConfirmSelection(IconThumbnailControl thumb)
+        private void ConfirmSelection(IconThumbnailControl? thumb)
         {
             if (thumb == null)
                 return;

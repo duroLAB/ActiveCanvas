@@ -59,7 +59,12 @@ namespace ActiveCanvasEngine
         /// right way round in ShowFrontView. Coordinates are RAW (SetLocalOrigin is applied automatically).
         /// The engine takes ownership of the image and disposes it on replacement/close.
         /// </summary>
+        /// <param name="image">The image to show; the engine takes ownership of it.</param>
+        /// <param name="minX">RAW X of the image's left edge.</param>
+        /// <param name="minZ">RAW Z of the image's bottom edge.</param>
+        /// <param name="widthMeters">Width of the image along X, in meters.</param>
         /// <param name="heightMeters">If omitted, computed from the image's aspect ratio.</param>
+        /// <param name="atY">RAW Y of the vertical plane the image lies in.</param>
         public void SetFrontBackgroundImage(Image image, float minX, float minZ, float widthMeters,
             float? heightMeters = null, float atY = 0f)
         {
@@ -77,7 +82,12 @@ namespace ActiveCanvasEngine
         /// LEFT, so the image's left edge lies at the higher Y - that way it reads the right way round (not
         /// mirrored) in the side view. Coordinates are RAW (SetLocalOrigin is applied automatically).
         /// </summary>
+        /// <param name="image">The image to show; the engine takes ownership of it.</param>
+        /// <param name="minY">RAW Y of the lower end of the image's horizontal extent.</param>
+        /// <param name="minZ">RAW Z of the image's bottom edge.</param>
+        /// <param name="widthMeters">Width of the image along Y, in meters.</param>
         /// <param name="heightMeters">If omitted, computed from the image's aspect ratio.</param>
+        /// <param name="atX">RAW X of the vertical plane the image lies in.</param>
         public void SetSideBackgroundImage(Image image, float minY, float minZ, float widthMeters,
             float? heightMeters = null, float atX = 0f)
         {

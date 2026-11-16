@@ -45,10 +45,13 @@ namespace ActiveCanvasEngine
         /// SetBackgroundImageFromGeoTiffAsync instead so the UI stays responsive.
         /// </summary>
         /// <returns>True if georeferencing was found and used, false if the fallback was used instead.</returns>
+        /// <param name="filePath">Path to the image file (GeoTIFF, or any image with a world file next to it).</param>
+        /// <param name="worldZ">RAW Z (height) at which the ground image is placed.</param>
         /// <param name="fallbackWorldWidthMeters">Used when no georeferencing is found and fallbackWorldWidthProvider is null.</param>
         /// <param name="fallbackWorldWidthProvider">Called ONLY if no georeferencing is found (lazily - the
         /// image is decoded just once either way), letting you e.g. prompt the user for a width instead of
         /// using a fixed fallback. Its return value overrides fallbackWorldWidthMeters when provided.</param>
+        /// <param name="maxPixelDimension">If the image's larger side exceeds this, a downscaled copy is used for drawing; null keeps full resolution.</param>
         public bool SetBackgroundImageFromGeoTiff(string filePath, float worldZ = 0f,
             float fallbackWorldWidthMeters = 100f, Func<float>? fallbackWorldWidthProvider = null,
             int? maxPixelDimension = 4000)

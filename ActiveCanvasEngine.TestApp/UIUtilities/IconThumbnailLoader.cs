@@ -15,7 +15,7 @@ namespace IconPicker
         /// Loads the file and returns a new size x size bitmap thumbnail.
         /// Returns null on error (corrupt file, unsupported format, ...).
         /// </summary>
-        public static Image LoadThumbnail(string filePath, int size)
+        public static Image? LoadThumbnail(string filePath, int size)
         {
             try
             {

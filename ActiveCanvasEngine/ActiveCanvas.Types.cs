@@ -46,7 +46,7 @@ namespace ActiveCanvasEngine
         public class Point3D
         {
             /// <summary>Unique identifier of the point - either auto-generated, or supplied by the host
-            /// application (e.g. a DB record ID), so the engine<->data link is direct.</summary>
+            /// application (e.g. a DB record ID), so the engine&lt;-&gt;data link is direct.</summary>
             public Guid Id { get; }
 
             public Vector3 World { get; private set; }

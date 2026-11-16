@@ -36,6 +36,7 @@ namespace ActiveCanvasEngine
         /// An ImageMarker's image is NOT disposed, so the marker can be added back to Images later - dispose
         /// marker.Image yourself when you're sure it's no longer needed.
         /// </summary>
+        /// <param name="item">The item to remove.</param>
         /// <param name="removeVertices">For a Polyline/Polygon: also remove its vertices that no other
         /// polyline/polygon uses (default). Pass false to keep them as standalone points.</param>
         public bool Remove(object item, bool removeVertices = true)
