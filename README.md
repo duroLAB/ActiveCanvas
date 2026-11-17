@@ -1,6 +1,6 @@
 # ActiveCanvas
 
-[![Release](https://img.shields.io/github/v/release/duroLAB/SimpleInteractiveEngine)](https://github.com/duroLAB/SimpleInteractiveEngine/releases/latest)
+[![Release](https://img.shields.io/github/v/release/duroLAB/ActiveCanvas)](https://github.com/duroLAB/ActiveCanvas/releases/latest)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)
 ![Windows Forms](https://img.shields.io/badge/UI-Windows%20Forms-0078D4)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -11,7 +11,7 @@ backgrounds, to interactive diagrams and graphs with connected nodes.
 
 **Current version: 1.0.0** — see the [Changelog](#changelog).
 **Try it without building anything:** download the test app from the
-[latest release](https://github.com/duroLAB/SimpleInteractiveEngine/releases/latest) (a single `.exe`,
+[latest release](https://github.com/duroLAB/ActiveCanvas/releases/latest) (a single `.exe`,
 no .NET installation needed).
 
 ![ActiveCanvas test app: plan view with points, lines, areas, a diagram and the property grid](docs/images/plan-view.png)
@@ -98,7 +98,7 @@ Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributor
 ## Installation
 
 **From a release** — download `ActiveCanvasEngine-<version>.zip` from
-[Releases](https://github.com/duroLAB/SimpleInteractiveEngine/releases), unzip `ActiveCanvasEngine.dll`
+[Releases](https://github.com/duroLAB/ActiveCanvas/releases), unzip `ActiveCanvasEngine.dll`
 together with `ActiveCanvasEngine.xml` (IntelliSense documentation) and `ActiveCanvasEngine.pdb` (debug
 symbols) into your project, and reference the DLL via **Add → Project Reference... → Browse**.
 
@@ -344,7 +344,7 @@ embedded in the test app (`Fonts/MaterialSymbolsOutlined.ttf`, Apache License 2.
 `Fonts/MaterialSymbols-LICENSE.txt`) — sharp at any DPI and recoloured for the dark theme. Only the test
 app uses them; the library itself has no dependencies.
 
-**Download** — every [release](https://github.com/duroLAB/SimpleInteractiveEngine/releases) has
+**Download** — every [release](https://github.com/duroLAB/ActiveCanvas/releases) has
 `ActiveCanvasTestApp-<version>-win-x64.zip`: unzip it and run `ActiveCanvasEngine.TestApp.exe`. It's
 self-contained (the .NET runtime is inside the exe), so nothing has to be installed; 64-bit Windows 10 or 11.
 
