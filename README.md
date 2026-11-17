@@ -440,6 +440,11 @@ earlier on GitHub (as SimpleInteractiveEngine):
 - TestApp is published as a self-contained single-file exe (`win-x64` publish profile) and attached to the
   release, so it runs without an installed .NET
 
+## Acknowledgement
+
+Developed within the project APVV-25-0315 (SafeTwin, [safetwin.sk](https://safetwin.sk)), funded by the
+Slovak Research and Development Agency.
+
 ## License
 
 MIT — see [LICENSE](LICENSE) for the full text.
