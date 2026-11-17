@@ -1,10 +1,20 @@
 # ActiveCanvas
 
-**A simple, interactive drawing engine for WinForms (.NET 9)** — built for situations where you need to
+[![Release](https://img.shields.io/github/v/release/duroLAB/SimpleInteractiveEngine)](https://github.com/duroLAB/SimpleInteractiveEngine/releases/latest)
+![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)
+![Windows Forms](https://img.shields.io/badge/UI-Windows%20Forms-0078D4)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+**A simple, interactive drawing engine for WinForms (.NET 10)** — built for situations where you need to
 draw and interactively edit elements on a canvas: from simple technical sketches, through GIS/map
 backgrounds, to interactive diagrams and graphs with connected nodes.
 
 **Current version: 1.0.0** — see the [Changelog](#changelog).
+**Try it without building anything:** download the test app from the
+[latest release](https://github.com/duroLAB/SimpleInteractiveEngine/releases/latest) (a single `.exe`,
+no .NET installation needed).
+
+![ActiveCanvas test app: plan view with points, lines, areas, a diagram and the property grid](docs/images/plan-view.png)
 
 It's not a CAD or GIS library — it's a small, readable engine (a single `ActiveCanvas` class, split across
 several files by responsibility via `partial class`) that handles the stuff you end up needing again and
@@ -70,14 +80,27 @@ hit-testing — done properly once, instead of rebuilt from scratch for every ne
 - Dark/light theme for the canvas (`ApplyDarkTheme()` / `ApplyLightTheme()`) and for the whole host form
   (`AppTheme`), plus hatch/dot pattern fills for areas and shapes (`HatchBrushes`)
 
+## Screenshots
+
+| 3D view | OpenStreetMap background | Dark theme |
+|---|---|---|
+| ![The same scene in the 3D isometric view](docs/images/3d-view.png) | ![The drawing placed on an OpenStreetMap background](docs/images/openstreetmap.png) | ![3D view in the dark theme](docs/images/dark-theme.png) |
+
+Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
+
 ## Requirements
 
-- .NET 9.0-windows (`net9.0-windows`)
+- .NET 10.0-windows (`net10.0-windows`)
 - WinForms (`<UseWindowsForms>true</UseWindowsForms>` in your `.csproj`)
 - No external NuGet dependencies
 - Internet access only for the optional OpenStreetMap layer
 
 ## Installation
+
+**From a release** — download `ActiveCanvasEngine-<version>.zip` from
+[Releases](https://github.com/duroLAB/SimpleInteractiveEngine/releases), unzip `ActiveCanvasEngine.dll`
+together with `ActiveCanvasEngine.xml` (IntelliSense documentation) and `ActiveCanvasEngine.pdb` (debug
+symbols) into your project, and reference the DLL via **Add → Project Reference... → Browse**.
 
 **Same solution** — add a project reference:
 
@@ -90,7 +113,7 @@ Solution Explorer → your project → Add → Project Reference... → check Ac
 (plus the `.pdb` for debug symbols) into your project, and reference it via **Add → Project Reference... →
 Browse**.
 
-> The target project must also be WinForms (`net9.0-windows`, `UseWindowsForms=true`) — the engine uses
+> The target project must also be WinForms (`net10.0-windows`, `UseWindowsForms=true`) — the engine uses
 > `System.Drawing`/`System.Windows.Forms`.
 
 ## Quick start
@@ -321,6 +344,20 @@ embedded in the test app (`Fonts/MaterialSymbolsOutlined.ttf`, Apache License 2.
 `Fonts/MaterialSymbols-LICENSE.txt`) — sharp at any DPI and recoloured for the dark theme. Only the test
 app uses them; the library itself has no dependencies.
 
+**Download** — every [release](https://github.com/duroLAB/SimpleInteractiveEngine/releases) has
+`ActiveCanvasTestApp-<version>-win-x64.zip`: unzip it and run `ActiveCanvasEngine.TestApp.exe`. It's
+self-contained (the .NET runtime is inside the exe), so nothing has to be installed; 64-bit Windows 10 or 11.
+
+**Build it yourself** the same way — a self-contained single-file exe for 64-bit Windows, written to
+`ActiveCanvasEngine.TestApp\bin\publish\win-x64\`:
+
+```
+dotnet publish ActiveCanvasEngine.TestApp -p:PublishProfile=win-x64
+```
+
+The profile (`Properties/PublishProfiles/win-x64.pubxml`) can also be picked in Visual Studio under
+**Publish**. The app isn't trimmed, because WinForms doesn't support trimming.
+
 ## Architecture (for orientation in the files)
 
 | File | Responsibility |
@@ -351,6 +388,9 @@ app uses them; the library itself has no dependencies.
 
 Everything listed under [What it can do](#what-it-can-do). Compared with the preview versions published
 earlier on GitHub (as SimpleInteractiveEngine):
+
+**Platform (breaking)**
+- Targets .NET 10 (`net10.0-windows`) instead of .NET 9.
 
 **Renamed (breaking)**
 - Namespace `SimpleDrawingEngine` → `ActiveCanvasEngine`, library project/DLL `SimpleInteractiveEngine.Core`
@@ -397,6 +437,8 @@ earlier on GitHub (as SimpleInteractiveEngine):
 - TestApp redesigned: flat UI with Material Symbols icons and a dark theme, a tool bar above the canvas,
   a properties panel for the selected item, a log of all engine events, coordinates/zoom/view in the
   status bar, and a demo scene with every primitive (geometry and diagram side by side)
+- TestApp is published as a self-contained single-file exe (`win-x64` publish profile) and attached to the
+  release, so it runs without an installed .NET
 
 ## License
 
