@@ -88,6 +88,13 @@ hit-testing — done properly once, instead of rebuilt from scratch for every ne
 
 Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
 
+**Coming in the next version: ATEX zones on a plant drawing.** A plot plan exported as a vector EMF is
+the background, the hazardous areas (zones 0 / 1 / 2) around the tank, vessel, reactor valve, exchanger
+flanges, compressor and pumps are 3D solids; the selected zone shows its properties, every click lands in
+the event log. Illustrative layout and zone extents, not a real area classification.
+
+![Test app: a vector plot plan (EMF) with ATEX zones 0/1/2 around the equipment](docs/images/atex-process-unit.png)
+
 ## Requirements
 
 - .NET 10.0-windows (`net10.0-windows`)
